@@ -9,9 +9,9 @@ RUN cabal update
 RUN cabal install happstack-server
 
 COPY . /opt/server
-RUN ghc --make -threaded app/server.hs -o app/server
+RUN ghc --make -threaded app/Server.hs -o app/Server -iapp -v
 
 EXPOSE 80:8000
 
-CMD ["app/server"]
+CMD ["app/Server"]
 
