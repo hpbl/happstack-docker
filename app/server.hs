@@ -23,7 +23,7 @@ handlers =
     do decodeBody myPolicy
        msum [
                 dir "img" $ serveDirectory DisableBrowsing [] "img/",
-                dir "style" $ serveDirectory DisableBrowsing [] "style/",
+                dir "Style" $ serveDirectory DisableBrowsing [] "Style/",
                 dir "koans" $ msum[
                     Happstack.Server.method GET >> uriRest (\params -> paramsToServerPart params),
                     Happstack.Server.method POST >> answeredKoan
