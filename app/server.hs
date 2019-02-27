@@ -1,8 +1,12 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE RecordWildCards    #-}
 
 module Main where
 
 import Happstack.Server
 import Control.Monad (msum)
+import           System.Console.CmdArgs.Implicit ((&=))
+import qualified System.Console.CmdArgs.Implicit as I
 
 import Pages.Index (index)
 import Pages.Exercise (exercise)
@@ -12,7 +16,12 @@ import Helpers.RoutingHelper (splitOnKeyword)
 
 
 main :: IO ()
-main = simpleHTTP nullConf $ handlers
+main = do
+  config <- I.cmdArgs aConfig
+  simpleHTTP (hConf config) handlers
+
+-- main :: IO ()
+-- main = simpleHTTP nullConf $ handlers
 
 myPolicy :: BodyPolicy
 myPolicy = (defaultBodyPolicy "/tmp/" 0 1000 1000)
@@ -49,5 +58,21 @@ paramsToServerPart params = exercise ((getKoan indexes), themeIndex, koanIndex, 
           koanIndex  = snd indexes
 
 
+-- Heroku Config
+--------------------------------------------------------------------------------
 
+data Config =
+  Config { port :: Int, timeout :: Int } deriving ( Show, Eq, I.Data, I.Typeable )
 
+hConf :: Config -> Conf
+hConf (Config {..}) = nullConf { Happstack.Server.timeout = timeout, Happstack.Server.port = port }
+
+aConfig :: Config
+aConfig =
+  Config { port    = 8000  &= I.help "Port number"
+                           &= I.typ "INT"
+         , timeout = 30    &= I.help "Timeout"
+                           &= I.typ "SECONDS"
+         }
+    &= I.summary "HKTest server"
+    &= I.program "server"
